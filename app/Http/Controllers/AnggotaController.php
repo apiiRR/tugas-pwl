@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class AnggotaController extends Controller
@@ -11,9 +11,10 @@ class AnggotaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+   public function index()
     {
-        //
+        $ar_anggota = DB::table('anggota')->get();
+        return view('anggota.index',compact('ar_anggota'));
     }
 
     /**
@@ -23,7 +24,8 @@ class AnggotaController extends Controller
      */
     public function create()
     {
-        //
+        //mengarahkan ke halaman form input
+        return view('anggota.form');
     }
 
     /**
@@ -34,7 +36,42 @@ class AnggotaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama'=>'required',
+            'email'=>'required',
+            'hp'=>'required',
+            'foto'=>'required'
+        ]);
+
+        $request->validate([
+            'nama'=>'required',
+            'email'=>'required',
+            'hp'=>'required',
+            'foto'=>'required'
+        ]);
+        //proses upload foto
+        if (!empty($request->foto)) {
+            $request->validate(
+                ['foto'=>'image|mimes:png,jpg|max:2048']
+            );
+            $fileName = $request->nama.'.'.$request->foto->extension();
+            $request->foto->move(public_path('images'),$fileName);
+        } else {
+            $fileName = '';
+        }
+        //proses input data
+        //1.tangkap request dari form input
+        DB::table('anggota')->insert(
+            [
+                'nama'=>$request->nama,
+                'email'=>$request->email,
+                'hp'=>$request->hp,
+                //'foto'=>$request->foto,
+                'foto'=>$fileName,
+            ]
+        );
+        //2.landing page
+        return redirect('/anggota');
     }
 
     /**
@@ -45,7 +82,10 @@ class AnggotaController extends Controller
      */
     public function show($id)
     {
-        //
+        //menampilkan detail anggota
+        $ar_anggota = DB::table('anggota')
+                        ->where('id', '=', $id)->get();
+        return view('anggota.show',compact('ar_anggota'));
     }
 
     /**
@@ -56,7 +96,10 @@ class AnggotaController extends Controller
      */
     public function edit($id)
     {
-        //
+        //mengarahkan ke halaman form edit
+        $data = DB::table('anggota')
+                        ->where('id', '=', $id)->get();
+        return view('anggota.form_edit',compact('data'));
     }
 
     /**
@@ -68,7 +111,39 @@ class AnggotaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'nama'=>'required',
+            'email'=>'required',
+            'hp'=>'required',
+            'foto'=>'required'
+        ]);
+        
+        $request->validate([
+            'nama'=>'required',
+            'email'=>'required',
+            'hp'=>'required',
+            'foto'=>'required'
+        ]);
+        //proses upload foto
+        if (!empty($request->foto)) {
+            $request->validate(
+                ['foto'=>'image|mimes:png,jpg|max:2048']
+            );
+            $fileName = $request->nama.'.'.$request->foto->extension();
+            $request->foto->move(public_path('images'),$fileName);
+        } else {
+            $fileName = '';
+        }
+        DB::table('anggota')->where('id', '=', $id)->update(
+            [
+                'nama'=>$request->nama,
+                'email'=>$request->email,
+                'hp'=>$request->hp,
+                'foto'=>$fileName,
+            ]
+        );
+        //2.landing page
+        return redirect('/anggota'.'/'.$id);
     }
 
     /**
@@ -79,6 +154,8 @@ class AnggotaController extends Controller
      */
     public function destroy($id)
     {
-        //
+        //menghapus data
+        DB::table('anggota')->where('id', $id)->delete();
+        return redirect('/anggota');
     }
 }

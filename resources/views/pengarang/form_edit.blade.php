@@ -1,28 +1,26 @@
 @extends('layouts.index')
-
 @section('content')
-<h3>Form Pengarang Buku</h3>
-<form action="{{ route('pengarang.update', $rs->id) }}" method="POST">
+<h3>Form Edit Pengarang</h3>
+<form method="POST" action="{{ route('pengarang.update', $data->id) }}" enctype="multipart/form-data">
     @csrf
-    @method('PUT')
+    @method('put')
     <div class="form-group">
-        <label for="">Nama Pengarang</label>
-        <input type="text" name="nama" value="{{ $rs->nama }}" class="form-control"  />
+        <label>Nama Pengarang</label>
+        <input type="text" name="nama" value="{{ $data->nama }}" class="form-control" />
     </div>
     <div class="form-group">
-        <label for="">Email</label>
-        <input type="text" name="email" value="{{ $rs->email }}" class="form-control" />
+        <label>Email Pengarang</label>
+        <input type="text" name="email" value="{{ $data->email }}" class="form-control" />
     </div>
     <div class="form-group">
-        <label for="">HP</label>
-        <input type="text" name="hp" value="{{ $rs->hp }}" class="form-control" />
+        <label>HP Pengarang</label>
+        <input type="text" name="hp" value="{{ $data->hp }}" class="form-control" />
     </div>
     <div class="form-group">
-        <label for="">Foto</label>
-        <input type="text" name="foto" value="{{ $rs->foto }}" class="form-control" />
+        <label>Foto Pengarang</label>
+        <input type="file" name="foto" value="{{ $data->foto }}" class="form-control" />
     </div>
-    <button type="submit" name="proses" value="Ubah" class="btn btn-primary">Ubah</button>
-    <input type="hidden" name="id" value="{{ $rs->id }}" /> 
-    <button type="reset" name="unproses" value="batal" class="btn btn-info">Batal</button>
+    <button type="submit" class="btn btn-primary" name="proses">Ubah</button>
+    <button type="reset" class="btn btn-danger" name="unproses">Batal</button>
 </form>
 @endsection

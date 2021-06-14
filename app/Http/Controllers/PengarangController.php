@@ -66,7 +66,8 @@ class PengarangController extends Controller
      */
     public function show($id)
     {
-        $pengarang = DB::table('pengarang')->where('id','=',$id)->get();
+        $pengarang = DB::table('pengarang')->where('id',$id)->first();
+        // dd($pengarang);
         return view('pengarang.show', compact('pengarang'));
     }
 
@@ -78,7 +79,8 @@ class PengarangController extends Controller
      */
     public function edit($id)
     {
-        $data = DB::table('pengarang')->where('id',$id)->get();
+        $data = DB::table('pengarang')->where('id', '=', $id)->first();
+        // dd($data);
         return view('pengarang.form_edit', compact('data'));
     }
 

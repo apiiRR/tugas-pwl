@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+//tambahan
 use Illuminate\Support\Facades\DB;
+use App\Models\Buku;
 
 class BukuController extends Controller
 {
@@ -15,12 +17,13 @@ class BukuController extends Controller
     public function index()
     {
         $ar_buku = DB::table('buku')
-        ->join('pengarang', 'pengarang.id', '=', 'buku.pengarang_id')
-        ->join('penerbit', 'penerbit.id', '=', 'buku.penerbit_id')
-        ->join('kategori', 'kategori.id', '=', 'buku.kategori_id')
-        ->select('buku.*', 'pengarang.nama', 'penerbit.nama AS pen', 'kategori.nama AS kat')
-        ->get();
-        return view('buku/index', compact('ar_buku'));
+            ->join('pengarang', 'pengarang.id', '=', 'buku.idpengarang')
+            ->join('penerbit', 'penerbit.id', '=', 'buku.idpenerbit')
+            ->join('kategori', 'kategori.id', '=', 'buku.idkategori')
+            ->select('buku.*', 'pengarang.nama', 'penerbit.nama AS pen',
+                    'kategori.nama AS kat')
+            ->get();
+        return view('buku.index',compact('ar_buku'));
     }
 
     /**
@@ -30,7 +33,8 @@ class BukuController extends Controller
      */
     public function create()
     {
-        return view ('buku.create');
+        //mengarahkan ke halaman form input
+        return view('buku.form');
     }
 
     /**
@@ -41,20 +45,42 @@ class BukuController extends Controller
      */
     public function store(Request $request)
     {
-    DB::table('buku')->insert(
-        [
-            'isbn' => $request->isbn,
-            'judul' =>$request->judul,
-            'tahun_cetak'=>$request->tahun_cetak,
-            'stok'=>$request->stok,
-            'penerbit_id'=>$request->penerbit_id,
-            'pengarang_id'=>$request->pengarang_id,
-            'kategori_id'=>$request->kategori_id,
-            'cover'=>$request->cover,
-        ]
-    );
-    return redirect('/buku');
-}
+        $request->validate([
+            'isbn'=>'required | max:70',
+            'judul'=>'required | max:70',
+            'tahun_cetak'=>'required | max:70',
+            'stok'=>'required | max:70',
+            'idpengarang'=>'required | max:70',
+            'idpenerbit'=>'required | max:70',
+            'idkategori'=>'required | max:70',
+        ]);
+        //proses upload cover
+        if (!empty($request->cover)) {
+            $request->validate(
+                ['cover'=>'image|mimes:png,jpg|max:2048']
+            );
+            $fileName = time().'.'.$request->cover->extension();
+            $request->cover->move(public_path('images'),$fileName);
+        } else {
+            $fileName = '';
+        }
+        //proses input data
+        //1.tangkap request dari form input
+        DB::table('buku')->insert(
+            [
+                'isbn'=>$request->isbn,
+                'judul'=>$request->judul,
+                'tahun_cetak'=>$request->tahun_cetak,
+                'stok'=>$request->stok,
+                'idpengarang'=>$request->idpengarang,
+                'idpenerbit'=>$request->idpenerbit,
+                'idkategori'=>$request->idkategori,
+                'cover'=>$fileName,
+            ]
+        );
+        //2.landing page
+        return redirect('/buku');
+    }
 
     /**
      * Display the specified resource.
@@ -64,15 +90,15 @@ class BukuController extends Controller
      */
     public function show($id)
     {
-        $datas = DB::table('buku')
-        ->join('pengarang', 'pengarang.id', '=', 'buku.pengarang_id')
-        ->join('penerbit', 'penerbit.id', '=', 'buku.penerbit_id')
-        ->join('kategori', 'kategori.id', '=', 'buku.kategori_id')
-        ->select('buku.*', 'pengarang.nama', 'penerbit.nama AS pen', 'kategori.nama AS kat')
-        ->where('buku.id', '=', $id)
-        ->get();
-        return view('buku.show', compact('datas'));
-
+        //menampilkan detail buku
+        $ar_buku = DB::table('buku')
+            ->join('pengarang', 'pengarang.id', '=', 'buku.idpengarang')
+            ->join('penerbit', 'penerbit.id', '=', 'buku.idpenerbit')
+            ->join('kategori', 'kategori.id', '=', 'buku.idkategori')
+            ->select('buku.*', 'pengarang.nama', 'penerbit.nama AS pen',
+                'kategori.nama AS kat')
+            ->where('buku.id', '=', $id)->get();
+        return view('buku.show',compact('ar_buku'));
     }
 
     /**
@@ -83,8 +109,10 @@ class BukuController extends Controller
      */
     public function edit($id)
     {
-        $datas = db::table('buku')->where('id', $id)->get();
-        return view('buku.update', compact('datas'));
+        //mengarahkan ke halaman form edit
+        $data = DB::table('buku')
+                        ->where('id', '=', $id)->get();
+        return view('buku.form_edit',compact('data'));
     }
 
     /**
@@ -96,20 +124,40 @@ class BukuController extends Controller
      */
     public function update(Request $request, $id)
     {
-        DB::table('buku')->where('id', $request->id)->update(
-        [
-            'isbn' => $request->isbn,
-            'judul' =>$request->judul,
-            'tahun_cetak'=>$request->tahun_cetak,
-            'stok'=>$request->stok,
-            'penerbit_id'=>$request->penerbit_id,
-            'pengarang_id'=>$request->pengarang_id,
-            'kategori_id'=>$request->kategori_id,
-            // 'cover'=>$request->cover,
-        ]
-    );
-    return redirect('/buku'.'/'.$id);
-
+        $request->validate([
+            'isbn'=>'required | max:70',
+            'judul'=>'required | max:70',
+            'tahun_cetak'=>'required | max:70',
+            'stok'=>'required | max:70',
+            'idpengarang'=>'required | max:70',
+            'idpenerbit'=>'required | max:70',
+            'idkategori'=>'required | max:70',
+        ]);
+        //proses upload cover
+        if (!empty($request->cover)) {
+            $request->validate(
+                ['cover'=>'image|mimes:png,jpg|max:2048']
+            );
+            $fileName = time().'.'.$request->cover->extension();
+            $request->cover->move(public_path('images'),$fileName);
+        } else {
+            $fileName = '';
+        }
+        //proses edit data lama
+        DB::table('buku')->where('id', '=', $id)->update(
+            [
+                'isbn'=>$request->isbn,
+                'judul'=>$request->judul,
+                'tahun_cetak'=>$request->tahun_cetak,
+                'stok'=>$request->stok,
+                'idpengarang'=>$request->idpengarang,
+                'idpenerbit'=>$request->idpenerbit,
+                'idkategori'=>$request->idkategori,
+                'cover'=>$fileName,
+            ]
+        );
+        //2.landing page
+        return redirect('/buku'.'/'.$id);
     }
 
     /**
@@ -120,6 +168,7 @@ class BukuController extends Controller
      */
     public function destroy($id)
     {
+        //menghapus data
         DB::table('buku')->where('id', $id)->delete();
         return redirect('/buku');
     }

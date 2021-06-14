@@ -4,8 +4,8 @@
 $ar_judul = ['No','Nama','Email','HP','Foto', 'Action'];
 $no = 1;
 @endphp
-<h3>Daftar Pengarang</h3>
-<a class="btn btn-primary btn-md" href="{{ route('pengarang.create') }}" role="button">Tambah</a>
+<h3>Daftar Anggota</h3>
+<a class="btn btn-primary btn-md" href="{{ route('anggota.create') }}" role="button">Tambah</a>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -15,17 +15,17 @@ $no = 1;
         </tr>
     </thead>
     <tbody>
-        @foreach($pengarang as $p)
+        @foreach($ar_anggota as $a)
         <tr>
             <td>{{ $no++ }}</td>
-            <td>{{ $p->nama }}</td>
-            <td>{{ $p->email }}</td>
-            <td>{{ $p->hp }}</td>
+            <td>{{ $a->nama }}</td>
+            <td>{{ $a->email }}</td>
+            <td>{{ $a->hp }}</td>
             <td width="13%">
                 @php
-                if (!empty($p->foto)){
+                if (!empty($a->foto)){
                 @endphp
-                <img src="{{  asset('images')}}/{{ $p->foto }}" width="60%" />
+                <img src="{{  asset('images')}}/{{ $a->foto }}" width="60%" />
                 @php
                 } else {
                 @endphp
@@ -35,11 +35,11 @@ $no = 1;
                 @endphp
             </td>
             <td>
-                <form method="POST" action="{{ route('pengarang.destroy', $p->id) }}">
+                <form method="POST" action="{{ route('anggota.destroy', $a->id) }}">
                     @csrf
                     @method('delete')
-                    <a class="btn btn-info" href="{{ route('pengarang.show', ['pengarang' => $p->id]) }}">Detail</a>
-                    <a class="btn btn-success" href="{{ route('pengarang.edit', ['pengarang' => $p->id]) }}">Edit</a>
+                    <a class="btn btn-info" href="{{ route('anggota.show', $a->id) }}">Detail</a>
+                    <a class="btn btn-success" href="{{ route('anggota.edit', $a->id) }}">Edit</a>
                     <button type="submit" class="btn btn-danger"
                         onclick="return confirm('Anda Yakin Data dihapus?')">Hapus</button>
                 </form>
